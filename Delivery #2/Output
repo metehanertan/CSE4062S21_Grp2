@@ -1,0 +1,72 @@
+--------------------------------------------
+Dataset:  YelpTrain
+--------------------------------------------
+Number of documents:  1600
+Number of words:  148339
+Number of characters:  769776
+Min word count:  2
+Average word count:  92.711875
+Max word count:  903
+Min character count:  11
+Average character count:  481.11
+Max character count:  4809
+Bag of words top 10:
+Size of bag of words is  10137 , top 10 words are:
+[('the', 6440), ('and', 5126), ('a', 3787), ('I', 3660), ('to', 2893), ('was', 2844), ('of', 2127), ('is', 1952), ('it', 1822), ('for', 1689)]
+Bag of words without stopwords top 10:
+Size of bag of words is  8326 , top 10 words are:
+[('food', 1095), ('place', 861), ('good', 815), ('great', 723), ('service', 565), ('restaurant', 464), ('like', 455), ('pizza', 425), ('one', 421), ('really', 405)]
+--------------------------------------------
+Dataset:  YelpTest
+--------------------------------------------
+Number of documents:  200
+Number of words:  21059
+Number of characters:  108822
+Min word count:  1
+Average word count:  105.295
+Max word count:  432
+Min character count:  4
+Average character count:  544.11
+Max character count:  2240
+Bag of words top 10:
+Size of bag of words is  3310 , top 10 words are:
+[('the', 928), ('and', 765), ('a', 569), ('I', 535), ('was', 450), ('to', 392), ('of', 285), ('it', 276), ('for', 251), ('is', 250)]
+Bag of words without stopwords top 10:
+Size of bag of words is  2701 , top 10 words are:
+[('food', 130), ('place', 126), ('good', 108), ('french', 101), ('great', 97), ('brunch', 92), ('back', 89), ('like', 84), ('delicious', 69), ('chicken', 67)]
+--------------------------------------------
+Dataset:  TurkTrain
+--------------------------------------------
+Number of documents:  800
+Number of words:  145407
+Number of characters:  747588
+Min word count:  32
+Average word count:  181.75875
+Max word count:  797
+Min character count:  174
+Average character count:  934.485
+Max character count:  4048
+Bag of words top 10:
+Size of bag of words is  8697 , top 10 words are:
+[('the', 7770), ('to', 4300), ('and', 4090), ('I', 4033), ('a', 3602), ('was', 3464), ('in', 2311), ('of', 1915), ('room', 1799), ('for', 1701)]
+Bag of words without stopwords top 10:
+Size of bag of words is  7480 , top 10 words are:
+[('room', 1850), ('hotel', 1755), ('stay', 649), ('chicago', 636), ('would', 572), ('service', 470), ('one', 464), ('get', 384), ('desk', 380), ('night', 370)]
+--------------------------------------------
+Dataset:  TurkTest
+--------------------------------------------
+Number of documents:  800
+Number of words:  97604
+Number of characters:  513557
+Min word count:  25
+Average word count:  122.005
+Max word count:  438
+Min character count:  147
+Average character count:  641.94625
+Max character count:  2389
+Bag of words top 10:
+Size of bag of words is  6467 , top 10 words are:
+[('the', 5046), ('and', 3718), ('a', 2746), ('to', 2407), ('was', 2360), ('I', 2343), ('in', 1634), ('The', 1628), ('of', 1376), ('hotel', 1287)]
+Bag of words without stopwords top 10:
+Size of bag of words is  5437 , top 10 words are:
+[('hotel', 1582), ('room', 970), ('chicago', 891), ('great', 664), ('stay', 655), ('staff', 473), ('stayed', 359), ('rooms', 355), ('would', 351), ('service', 349)]
