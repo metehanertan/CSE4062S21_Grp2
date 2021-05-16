@@ -3,20 +3,32 @@ import re
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
-from nltk.chunk import conlltags2tree, tree2conlltags
+from nltk.chunk import conlltags2tree, tree2conlltags, ne_chunk
 from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
+import spacy
+from spacy import displacy
+from collections import Counter
+import en_core_web_sm
+import seaborn as sns
+import pandas as pd
 
 # nltk.download('stopwords')
 # nltk.download('punkt')
 # nltk.download('words')
 # nltk.download('averaged_perceptron_tagger')
+# nltk.download('maxent_ne_chunker')
 words = set(nltk.corpus.words.words())
+nlp = en_core_web_sm.load()
 
 
 def analyze_dataset(paths):
     # Creating dataset
+    name = getVarName(paths, globals()).replace('Paths', '')
+    print(name)
+    os.makedirs('charts\\' + name)
     wholeText = ""
+    wholeNer = []
     for path in paths:
         for txtFile in os.listdir(path):
 
@@ -28,28 +40,73 @@ def analyze_dataset(paths):
             new_string = re.sub('[^a-zA-Z0-9]', ' ', text)
             text = re.sub('\s+', ' ', new_string)
 
+            indiNer = nlp(text)
+            indiLabels = [x.label_ for x in indiNer.ents]
+            indiLabelsCount = dict(Counter(indiLabels))
+
+            if 'Fake' in path or 'deceptive' in path:
+                indiLabelsCount['Result'] = 0
+            elif 'True' in path or 'truthful' in path:
+                indiLabelsCount['Result'] = 1
+
+            wholeNer.append(indiLabelsCount)
             wholeText += text + " "
 
+    # Create scatter plot matrix
+    create_scatter(name, wholeNer)
+
+    '''
     # Processing dataset
     iobTagged = process_ds(wholeText)
     BagOWords = bag_of_words(iobTagged)
 
-    # Creating graph of top 20 words
-    create_graph(getVarName(paths, globals()), BagOWords[:20])
+    # Spacy
+    ner = nlp(wholeText)
+    labels = [x.label_ for x in ner.ents]
+    labelsCount = dict(Counter(labels))
+
+    # Creating graph
+    create_graph(name, BagOWords)
+    print_chart(name, 'NER', labelsCount)
+    '''
+
+
+def create_scatter(name, wholeNer):
+    labels = ['NORP', 'CARDINAL', 'DATE', 'ORG', 'LANGUAGE', 'LOC', 'GPE', 'PERSON', 'ORDINAL', 'TIME', 'MONEY',
+              'WORK_OF_ART', 'QUANTITY', 'FAC', 'PRODUCT', 'EVENT', 'LAW', 'PERCENT', 'Result']
+    matrix = []
+
+    for Ner in wholeNer:
+        line = []
+        for label in labels:
+            if label in Ner.keys():
+                line.append(Ner[label])
+            else:
+                line.append(0)
+        matrix.append(line)
+
+    df = pd.DataFrame(matrix, columns=labels)
+    sns_plot = sns.pairplot(df, hue="Result")
+    sns_plot.savefig('charts\\' + name + '\\NER_scatterPlot.png')
 
 
 def process_ds(wholeText):
+    # NLTK
     # Tokenize
     wholeTextArr = nltk.word_tokenize(wholeText)
     # Remove Stopwords
-    wholeTextArr = remove_stopwords(wholeTextArr)
+    wholeTextArrWOStopwords = remove_stopwords(wholeTextArr)
     # PoS tagging
-    # noun phrase NP, determiner DT, adjectives JJ, Noun NN
-    wholeTextArr = nltk.pos_tag(wholeTextArr)
+    # see PoS tags : https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+    PoSTagged = nltk.pos_tag(wholeTextArrWOStopwords)
     # Chunking
-    cs = chunking(wholeTextArr)
+    chunked = chunking(PoSTagged)
     # IoB tagging
-    iobTagged = tree2conlltags(cs)
+    # B-{TAG} : beginning of a phrase
+    # I-{TAG} : describes that the word is inside of the current phrase
+    # O : end of the sentence
+    iobTagged = tree2conlltags(chunked)
+
     return iobTagged
 
 
@@ -81,24 +138,39 @@ def bag_of_words(corpus):
 
 
 def create_graph(name, dataset):
-    xAxis = []
-    yAxis = []
-    for data in dataset:
-        xAxis.append(str(data[0]))
-        yAxis.append(data[1])
+    PoSFeatures = {}
+    IoBFeatures = {}
 
-    plt.bar(xAxis, yAxis)
+    for data in dataset:
+        PoSFeature = (data[0])[1]
+        if PoSFeature not in PoSFeatures.keys():
+            PoSFeatures[PoSFeature] = 1
+        else:
+            PoSFeatures[PoSFeature] = PoSFeatures[PoSFeature] + 1
+
+        IoBFeature = (data[0])[2]
+        if IoBFeature not in IoBFeatures.keys():
+            IoBFeatures[IoBFeature] = 1
+        else:
+            IoBFeatures[IoBFeature] = IoBFeatures[IoBFeature] + 1
+
+    print_chart(name, 'PoSFeatures', PoSFeatures)
+    print_chart(name, 'IoBFeatures', IoBFeatures)
+
+
+def print_chart(name, featureType, datasetDict):
+    plt.bar(datasetDict.keys(), datasetDict.values())
     plt.xticks(rotation=90)
-    plt.title(name)
-    plt.xlabel('Words')
-    plt.ylabel('Values')
+    plt.title(name + ' ' + featureType)
+    plt.xlabel('Features')
+    plt.ylabel('Count')
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-    plt.savefig('charts\\' + name + '.png')
+    plt.savefig('charts\\' + name + '\\' + featureType + '.png')
     plt.close()
 
 
 def getVarName(obj, namespace):
-    return [name for name in namespace if namespace[name] is obj][0].replace("Paths", "")
+    return [name for name in namespace if namespace[name] is obj][0]
 
 
 # Yelp Dataset Paths
